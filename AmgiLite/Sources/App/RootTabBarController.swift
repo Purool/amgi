@@ -14,6 +14,14 @@ final class RootTabBarController: UITabBarController {
             wrap(browse, title: "Browse", systemImage: "list.bullet", router: router),
             wrap(settings, title: "Settings", systemImage: "gearshape", router: router),
         ]
+
+        #if DEBUG
+        // Lets QA / CI open the engine status screen without tapping:
+        //   xcrun simctl launch booted com.amgiapp.AmgiLite -AmgiLiteStartAtSettings
+        if ProcessInfo.processInfo.arguments.contains("-AmgiLiteStartAtSettings") {
+            selectedIndex = 2
+        }
+        #endif
     }
 
     @available(*, unavailable)

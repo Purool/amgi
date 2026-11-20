@@ -6,7 +6,8 @@ iOS 14 / UIKit 基础版：**卡组 → 卡片浏览 → 到期复习**，其余
 `./scripts/verify.sh` 仍然成立。
 
 阶段划分与 Shard 分工见 `Documentation/AMGI_LITE_IOS14_PLAN.md`。
-现状：Phase 0 脚手架，除占位页外没有真实界面。
+现状：Phase 1 完成——服务层（Collections/Decks/Review/Browse/Import）、设计系统、
+卡面 WebView 已就绪；Decks/Browse 仍是占位页，由 Phase 2 填充。
 
 ## 目录
 
@@ -19,7 +20,7 @@ iOS 14 / UIKit 基础版：**卡组 → 卡片浏览 → 到期复习**，其余
 | `Frameworks/` | `AnkiRustLib.xcframework`，按 iOS 14.0 构建，已提交 |
 | `Sources/App/` | AppDelegate / SceneDelegate / AppContainer / Router / Composition |
 | `Sources/DesignSystem/` | `AmgiColor` / `AmgiTypography` / `AmgiSpacing`（纯 UIKit） |
-| `Sources/Services/` | `Contracts.swift`：UI 与引擎之间唯一的协议边界 |
+| `Sources/Services/` | `Contracts.swift`（协议）+ `Live*Service` 实现 + `CollectionSession` |
 | `Sources/Support/` | `CardViewHosting` 等跨屏接缝 |
 | `Sources/Features/` | 每个 screen 一个子目录，由 Phase 2 的 shard 填充 |
 | `Tests/AmgiLiteTests/` | 引擎冒烟测试，见 `Tests/AGENTS.md` |

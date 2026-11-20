@@ -1,12 +1,13 @@
 import AnkiKit
 import Foundation
 
-// The only boundary between the UIKit app and the engine. Phase 1 (shard S1)
-// implements these against `AnkiBackend`; feature shards depend on the
-// protocols and never import `AnkiBackend` themselves.
+// The only boundary between the UIKit app and the engine. `LiteServices`
+// implements these against `AnkiBackend`; feature code depends on the protocols
+// and never imports the engine itself.
 //
-// Keep this file append-only once shards start: it is the contract they code
-// against, and it is owned by the scaffold, not by any feature shard.
+// Implementation note: protocol methods are `async` because every call hops off
+// the caller's actor via `backendOffload` — `AnkiBackend.invoke` is a blocking
+// FFI call and must never run on the main thread.
 
 public struct DeckRow: Sendable, Equatable, Identifiable {
     public let id: DeckID
@@ -49,9 +50,33 @@ public struct CollectionPaths: Sendable, Equatable {
     }
 }
 
+extension CollectionPaths {
+    /// `<Documents>/collection.anki2` + its media folder and media DB. The media
+    /// directory is created eagerly: the Rust engine treats it as already
+    /// existing and fails the open if it is missing.
+    public static func standard() throws -> CollectionPaths {
+        let fileManager = FileManager.default
+        let documents = try fileManager.url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let media = documents.appendingPathComponent("collection.media", isDirectory: true)
+        try fileManager.createDirectory(at: media, withIntermediateDirectories: true)
+
+        return CollectionPaths(
+            collectionPath: documents.appendingPathComponent("collection.anki2").path,
+            mediaFolderPath: media.path,
+            mediaDatabasePath: documents.appendingPathComponent("collection.media.db2").path
+        )
+    }
+}
+
 public protocol CollectionServicing: Sendable {
     func open(_ paths: CollectionPaths) async throws
     func close() async throws
+    /// Absolute path of the open collection's media folder, or nil when closed.
     var mediaFolderPath: String? { get }
 }
 
@@ -64,7 +89,14 @@ public protocol DeckServicing: Sendable {
 public protocol ReviewServicing: Sendable {
     func queuedCards(limit: Int) async throws -> QueuedCardsResult
     func render(cardID: CardID) async throws -> RenderedCard
-    func answer(cardID: CardID, rating: Rating, timeSpent: UInt32) async throws
+    /// `states` must be the scheduling states returned with this card by
+    /// `queuedCards(limit:)`; reusing them for a different card mis-schedules.
+    func answer(
+        cardID: CardID,
+        states: ReviewSchedulingStates,
+        rating: Rating,
+        timeSpent: UInt32
+    ) async throws
     func undo() async throws
 }
 
@@ -88,5 +120,7 @@ public enum LiteError: Error, Sendable, Equatable {
     case collectionNotOpen
     case unsupportedPackage
     case notLoggedIn
+    /// `sync` and `import` land in Phase 3; the placeholder services throw this.
+    case notImplemented
     case engine(String)
 }
