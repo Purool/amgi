@@ -6,8 +6,9 @@ iOS 14 / UIKit 基础版：**卡组 → 卡片浏览 → 到期复习**，其余
 `./scripts/verify.sh` 仍然成立。
 
 阶段划分与 Shard 分工见 `Documentation/AMGI_LITE_IOS14_PLAN.md`。
-现状：Phase 1 完成——服务层（Collections/Decks/Review/Browse/Import）、设计系统、
-卡面 WebView 已就绪；Decks/Browse 仍是占位页，由 Phase 2 填充。
+现状：Phase 1 + 1.5 完成——服务层（Collections/Decks/Review/Browse/Import）、设计系统、
+卡面 WebView 已就绪，且已由 Phase 1.5 接进 shell（`Composition.swift` 里的临时
+卡组列表 + 临时卡面预览）；Browse 仍是占位页，由 Phase 2 填充。
 
 ## 目录
 
