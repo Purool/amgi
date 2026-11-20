@@ -1,0 +1,4 @@
+framework module AnkiRustLib {
+    header "anki_bridge.h"
+    export *
+}
