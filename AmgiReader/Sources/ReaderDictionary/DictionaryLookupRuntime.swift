@@ -66,8 +66,8 @@ private final class LookupEngineBox {
 }
 
 /// Live engine binding. Internal so the `import CHoshiDicts` doesn't bleed
-/// Cxx-mode requirements into consumers' swiftinterface — only the
-/// public `+Live.swift` wires this up via `liveValue`.
+/// Cxx-mode requirements into consumers' swiftinterface — only
+/// `DictionaryLookupClient.liveValue` wires this up.
 ///
 /// All methods are async and run on the actor's serial executor, which
 /// also gives us a single-writer guarantee for the underlying

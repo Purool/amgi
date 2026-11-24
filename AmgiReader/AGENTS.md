@@ -11,8 +11,10 @@ Three modules, split along one line: which of them touches C++.
 ## Keep the C++ import in one file
 
 `import CHoshiDicts` lives in exactly one place: `DictionaryLookupRuntime.swift`,
-an internal actor inside `ReaderDictionary`. The public `+Live.swift` imports no
-Cxx — it constructs the runtime and delegates.
+an internal actor inside `ReaderDictionary`. `DictionaryLookupClient.liveValue`
+in `DictionaryLookupClient.swift` (where the `DependencyKey` conformance has to
+live — see `Sources/AGENTS.md`, "Dependency client shape") imports no Cxx — it
+constructs the runtime and delegates.
 
 That containment is what keeps Tuist's `cxx: true` setting scoped to this
 module. Every target that imports a Cxx-mode module inherits the setting and

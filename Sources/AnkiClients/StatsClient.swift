@@ -8,6 +8,8 @@
 public import AnkiKit
 public import Dependencies
 import DependenciesMacros
+import AnkiBackend
+import AnkiProtoBridge
 
 @DependencyClient
 public struct StatsClient: Sendable {
@@ -23,4 +25,16 @@ extension DependencyValues {
         get { self[StatsClient.self] }
         set { self[StatsClient.self] = newValue }
     }
+}
+
+extension StatsClient: DependencyKey {
+    public static let liveValue: Self = {
+        @Dependency(\.ankiBackend) var backend
+
+        return Self(
+            fetchGraphs: { search, days in
+                try await backendOffload { try backend.invoke(.graphs(search: search, days: days)) }
+            }
+        )
+    }()
 }

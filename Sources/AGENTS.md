@@ -96,3 +96,17 @@ extension CardClient: DependencyKey {
     }()
 }
 ```
+
+**Keep `liveValue` in the client's own file.** Modules build as static
+frameworks, so the linker extracts only the archive members that resolve a
+reference — and nothing references `liveValue`; it is reached at runtime through
+a protocol cast (`key as? any DependencyKey.Type`). A conformance sitting in a
+separate `+Live.swift` compiles into its own object, which may never be pulled
+into the app: `@Dependency(\.cardClient)` then falls back to the empty
+`testValue` and the screen shows `DependenciesMacros.Unimplemented`. Compiling
+it beside the struct puts it in the object every `@Dependency` use already
+references. `+Preview.swift` is fine on its own — `.previewValue` is referenced
+by name.
+
+This is a debug/incremental-build property: release builds use whole-module
+optimization, which emits one object for the module.

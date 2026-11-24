@@ -22,6 +22,7 @@ that path — it holds the rules that path enforces.
 | `AmgiUI/` | `Theme` (palettes, tokens) and `UI` (shared components) | `AmgiUI/AGENTS.md` |
 | `AmgiReader/` | Reader domain types, EPUB parsing, the C++ dictionary | `AmgiReader/AGENTS.md` |
 | `AmgiApp/` | Tuist project: app, widget and watch targets | `AmgiApp/AGENTS.md` |
+| `AmgiLite/` | iOS 14 / UIKit basic build: decks, browse, scheduled review. Self-contained (copied engine, own Tuist root), not part of the main app's build | `AmgiLite/AGENTS.md` |
 | `Tuist/` | Shared project settings and remote dependencies | `Tuist/ProjectDescriptionHelpers/` and `Tuist/Package.swift` |
 | `anki-bridge-rs/` | The Rust crate exposing the C ABI | `Sources/AGENTS.md` |
 | `Package.swift`, `AmgiReader/Package.swift` | SwiftPM manifests for outside consumers of `AnkiBridge`; the app does not use them. A target added to `Project.swift` or `AmgiReader/Project.swift` goes here too | — |

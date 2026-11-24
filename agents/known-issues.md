@@ -11,6 +11,17 @@ Behaviour that looks like a bug in the code you are touching, and is not.
 - **Apple's Compression framework has no zstd.** Rust handles zstd internally;
   no Swift-side compression is needed.
 
+## Linking
+
+- **A screen shows `DependenciesMacros.Unimplemented` / "Couldn't Load Decks"
+  with "(… error 1.)".** A `@DependencyClient` resolved its empty `testValue`
+  in a live context, because the `DependencyKey` conformance was compiled into a
+  static-framework archive member the linker never extracted. Keep `liveValue`
+  in the client's own file; see "Dependency client shape" in
+  `Sources/AGENTS.md`. The console says which endpoint:
+  `Unimplemented: 'DeckClient.fetchTree'`. The user-facing message only carries
+  `Unimplemented error 1`, so check the log rather than the screen.
+
 ## Toolchain
 
 - **SourceKit reports errors that do not exist.** Trust `build_sim` /

@@ -7,6 +7,9 @@ AmgiApp/memory/
 DerivedData/
 build/
 AnkiRustLib.xcframework
+# The Lite app commits its iOS 14 engine build so the folder (and git
+# worktrees) stay self-contained. See AmgiLite/README.md.
+!AmgiLite/Frameworks/AnkiRustLib.xcframework
 anki-bridge-rs/target/
 anki-upstream/target/
 .claude/
