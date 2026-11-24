@@ -12,12 +12,14 @@ enum Route: Equatable {
 final class Router {
     private var navigations: [ObjectIdentifier: UINavigationController] = [:]
 
+    /// Factory seams, wired once by `Composition.makeScreens` before any
+    /// screen is presented; tripping a default means the wiring was skipped.
     var makeReview: (DeckID) -> UIViewController = { _ in
-        PlaceholderViewController(title: "Review", detail: "Review flow lands in Phase 2 (S7).")
+        preconditionFailure("Router.makeReview must be wired in Composition.makeScreens")
     }
 
     var makeBrowseNote: (NoteID) -> UIViewController = { _ in
-        PlaceholderViewController(title: "Note", detail: "Note detail lands in Phase 2 (S8).")
+        preconditionFailure("Router.makeBrowseNote must be wired in Composition.makeScreens")
     }
 
     func register(_ navigation: UINavigationController) {

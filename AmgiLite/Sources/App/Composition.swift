@@ -13,10 +13,10 @@ struct ScreenFactories {
 ///
 /// Phase 2 (S6/S7/S8) + 2.5 (S9) status: the Decks and Browse tabs drive the
 /// real feature screens, and `Router.makeReview` / `Router.makeBrowseNote`
-/// resolve to the review flow and the read-only note detail. The Phase 1.5
-/// temporary deck list and card preview are gone — the review screen covers
-/// the card-rendering seam end to end. Settings is still the Phase 1 engine
-/// status screen until Phase 3 (S11).
+/// resolve to the review flow and the read-only note detail. The placeholder
+/// page is gone — `PlaceholderViewController` was deleted with the Phase 1.5
+/// temporary screens, and every route now ends at a feature screen. Settings
+/// is still the Phase 1 engine status screen until Phase 3 (S11).
 @MainActor
 enum Composition {
     static func makeScreens(
