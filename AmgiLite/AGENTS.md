@@ -6,9 +6,10 @@ iOS 14 / UIKit 基础版：**卡组 → 卡片浏览 → 到期复习**，其余
 `./scripts/verify.sh` 仍然成立。
 
 阶段划分与 Shard 分工见 `Documentation/AMGI_LITE_IOS14_PLAN.md`。
-现状：Phase 1 + 1.5 完成——服务层（Collections/Decks/Review/Browse/Import）、设计系统、
-卡面 WebView 已就绪，且已由 Phase 1.5 接进 shell（`Composition.swift` 里的临时
-卡组列表 + 临时卡面预览）；Browse 仍是占位页，由 Phase 2 填充。
+现状：Phase 2 + 2.5 完成——`Features/Decks`（diffable 卡组列表 + 计数徽章）、
+`Features/Review`（Q/A 切换、四键评分、撤销、结束态）、`Features/Browse`
+（搜索 + 只读笔记列表/详情）已接进 shell，`Composition.swift` 里的临时
+卡组列表与临时卡面预览已删除；Settings 仍是 Phase 1 的引擎状态页，由 Phase 3 替换。
 
 ## 目录
 
