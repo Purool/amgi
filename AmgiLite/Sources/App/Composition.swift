@@ -1,8 +1,7 @@
 import AnkiKit
 import UIKit
 
-/// Screens the tab bar hosts, in tab order. Phase 3 replaces the settings
-/// screen. Nothing else in the shell changes.
+/// Screens the tab bar hosts, in tab order.
 struct ScreenFactories {
     let makeDecks: () -> UIViewController
     let makeBrowse: () -> UIViewController
@@ -11,15 +10,15 @@ struct ScreenFactories {
 
 /// The single wiring point. Integration tasks edit this file only.
 ///
-/// Phase 2 (S6/S7/S8) + 2.5 (S9) status: the Decks and Browse tabs drive the
-/// real feature screens, and `Router.makeReview` / `Router.makeBrowseNote`
-/// resolve to the review flow and the read-only note detail. The placeholder
-/// page is gone — `PlaceholderViewController` was deleted with the Phase 1.5
-/// temporary screens, and every route now ends at a feature screen. Settings
-/// is still the Phase 1 engine status screen until Phase 3 (S11).
+/// Phase 3 (S10/S11) status: Settings is now the real screen — AnkiWeb
+/// account, sync with progress and the full-sync conflict prompt, `.apkg`
+/// import, and about info. Onboarding is not a tab: `AppContainer` shows it
+/// instead of the tab bar on first launch and swaps in `makeMainScreens()`
+/// when it completes.
 @MainActor
 enum Composition {
-    static func makeScreens(
+    /// The tab bar screens. Called once per root install.
+    static func makeMainScreens(
         services: LiteServices,
         session: CollectionSession,
         router: Router
@@ -45,7 +44,9 @@ enum Composition {
                 )
             },
             makeSettings: {
-                EngineStatusViewController(services: services, session: session)
+                SettingsViewController(
+                    viewModel: SettingsViewModel(services: services, session: session)
+                )
             }
         )
     }

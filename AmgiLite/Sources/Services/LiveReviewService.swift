@@ -11,6 +11,14 @@ struct LiveReviewService: ReviewServicing {
         self.state = state
     }
 
+    func setCurrentDeck(_ deckID: DeckID) async throws {
+        let backend = self.backend
+        try requireCollectionOpen(state)
+        try await backendOffload {
+            try backend.invoke(.setCurrentDeck(deckId: deckID))
+        }
+    }
+
     func queuedCards(limit: Int) async throws -> QueuedCardsResult {
         let fetchLimit = UInt32(clamping: max(0, limit))
         let backend = self.backend

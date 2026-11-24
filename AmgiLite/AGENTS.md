@@ -6,10 +6,15 @@ iOS 14 / UIKit 基础版：**卡组 → 卡片浏览 → 到期复习**，其余
 `./scripts/verify.sh` 仍然成立。
 
 阶段划分与 Shard 分工见 `Documentation/AMGI_LITE_IOS14_PLAN.md`。
-现状：Phase 2 + 2.5 完成——`Features/Decks`（diffable 卡组列表 + 计数徽章）、
+现状：Phase 3 完成——`Features/Decks`（diffable 卡组列表 + 计数徽章）、
 `Features/Review`（Q/A 切换、四键评分、撤销、结束态）、`Features/Browse`
-（搜索 + 只读笔记列表/详情）已接进 shell，`Composition.swift` 里的临时
-卡组列表与临时卡面预览已删除；Settings 仍是 Phase 1 的引擎状态页，由 Phase 3 替换。
+（搜索 + 只读笔记列表/详情）已接进 shell；`Features/Settings` 是真实设置页
+（AnkiWeb 登录/同步——含媒体进度与 full-sync 冲突提示、`.apkg` 导入、关于），
+Phase 1 的 `EngineStatusViewController` 已删除；首次启动由 `Features/Onboarding`
+接管（创建 collection / 导入 .apkg / 登录，可跳过），完成后切回 tab bar。
+同步实现在 `Sources/Services/LiveSyncService.swift`（Keychain 存凭据，
+`SyncServicing` 契约为此新增 `fullSync` / `mediaSyncStatus` / `cancel` 等成员）。
+未做：Phase 4（测试补齐、真机回归、AppIcon）。
 
 ## 目录
 

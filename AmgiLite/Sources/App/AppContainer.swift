@@ -10,7 +10,15 @@ final class AppContainer {
     private(set) var services: LiteServices?
     private(set) var session: CollectionSession?
 
+    /// Set by `SceneDelegate` so an onboarding completion can reinstall the
+    /// tab bar without the container knowing about the window.
+    var onRootFinished: (() -> Void)?
+
     func makeRootViewController() -> UIViewController {
+        guard backend == nil else {
+            return rootViewController()
+        }
+
         let backend: AnkiBackend
         do {
             backend = try AnkiBackend(preferredLangs: ["en"])
@@ -23,17 +31,49 @@ final class AppContainer {
 
         let services = LiteServices.live(backend: backend)
         let session = CollectionSession(collection: services.collection)
-        let router = Router()
 
         self.backend = backend
         self.services = services
         self.session = session
 
-        let screens = Composition.makeScreens(
+        return rootViewController()
+    }
+
+    // MARK: - Roots
+
+    private func rootViewController() -> UIViewController {
+        guard let services, let session else {
+            preconditionFailure("makeRootViewController must run before any root is built")
+        }
+
+        if OnboardingGate.needsOnboarding {
+            return OnboardingViewController(
+                viewModel: OnboardingViewModel(services: services, session: session),
+                onFinish: { [weak self] in
+                    OnboardingGate.markComplete()
+                    self?.installMainRoot()
+                }
+            )
+        }
+        return mainRootViewController()
+    }
+
+    /// The tab bar root, rebuilt whenever onboarding completes.
+    private func mainRootViewController() -> UIViewController {
+        guard let services, let session else {
+            preconditionFailure("makeRootViewController must run before any root is built")
+        }
+
+        let router = Router()
+        let screens = Composition.makeMainScreens(
             services: services,
             session: session,
             router: router
         )
         return RootTabBarController(screens: screens, router: router)
+    }
+
+    private func installMainRoot() {
+        onRootFinished?()
     }
 }

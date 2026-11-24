@@ -104,13 +104,26 @@ only consume it.
   `ErrorStateView` — the shared surfaces Phase 2 screens compose from.
 - `CardWebView` + `CardSchemeHandler` + `CardPageBuilder`: `amgi-asset://` serves
   media/MathJax, the page carries the notetype CSS, `nightMode` and the media base.
-- `EngineStatusViewController`: temporary Settings tab; proves the stack opens a
-  collection and reads the deck tree on device.
-- `SyncServicing` is still `UnavailableSyncService` (throws `notImplemented`);
-  real AnkiWeb sync is Phase 3.
+- `EngineStatusViewController` (Phase 1) was replaced in Phase 3 and deleted;
+  Settings is the real screen now.
+
+## Phase 3 additions
+
+- `Features/Onboarding`: first-launch gate (`OnboardingGate` flag + a
+  pre-existing collection file skips it). Create a collection, import an
+  `.apkg`, or sign in to AnkiWeb — all three complete onboarding, "Skip"
+  defers everything to Settings.
+- `Features/Settings`: AnkiWeb account rows, sync with media-progress text and
+  a cancel button, the full-sync conflict prompt (upload/download), `.apkg`
+  import, and about info. `LoginViewController` is shared with onboarding.
+- `Services/LiveSyncService`: real sync over `KeychainHelper` credentials;
+  `SyncServicing` gained `loggedInUsername` / `fullSync(direction:)` /
+  `mediaSyncStatus()` / `cancel()`.
+- `Support/BlockingProgressView`, `Support/ErrorMessages`, `Support/Alerts`:
+  shared progress card and error presentation.
 
 Debug helper: `xcrun simctl launch booted com.amgiapp.AmgiLite -AmgiLiteStartAtSettings`
-opens the status screen directly (DEBUG builds only).
+opens the Settings tab directly (DEBUG builds only).
 
 ## What the scaffold already guarantees
 

@@ -3,10 +3,13 @@ import Foundation
 
 /// State machine for the review screen.
 ///
-/// Engine note: `getQueuedCards` has no deck filter parameter — the queue the
-/// engine returns is global across the whole collection, so a card shown here
-/// may not belong to the deck the user navigated from. `deckID` is kept only
-/// as the hook where a future filter would attach once the engine grows one.
+/// Engine note: `getQueuedCards` builds the study queue for the engine's
+/// *current* deck (plus its subdecks), not globally across the collection —
+/// that is how the main app treats it too (`ReviewSession.start()` calls
+/// `setCurrentDeck` before fetching). `deckID` therefore selects what is
+/// queued: every fetch is preceded by `setCurrentDeck(deckID)`. Without it a
+/// deck other than the engine's current one yields an empty queue while the
+/// deck list still shows its counts.
 ///
 /// Scheduling contract (from `ReviewServicing`): a card's `states` are only
 /// valid for that card. Therefore every answer is immediately followed by a
@@ -132,6 +135,7 @@ final class ReviewViewModel {
         emit(.loading)
         do {
             try await session.ensureOpen()
+            try await services.review.setCurrentDeck(deckID)
             let queued = try await services.review.queuedCards(limit: 1)
             remainingCount = queued.newCount + queued.learningCount + queued.reviewCount
 

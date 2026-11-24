@@ -15,9 +15,20 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let container = AppContainer()
         self.container = container
 
+        // Onboarding finishes by asking for a root reinstall, so the container
+        // must outlive the first root it built.
+        container.onRootFinished = { [weak self] in
+            self?.installRoot()
+        }
+
         let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        installRoot()
+    }
+
+    private func installRoot() {
+        guard let container, let window else { return }
         window.rootViewController = container.makeRootViewController()
         window.makeKeyAndVisible()
-        self.window = window
     }
 }

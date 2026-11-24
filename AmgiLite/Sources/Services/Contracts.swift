@@ -87,6 +87,10 @@ public protocol DeckServicing: Sendable {
 }
 
 public protocol ReviewServicing: Sendable {
+    /// Point the engine's study queue at this deck. `queuedCards` builds the
+    /// queue for the *current* deck (plus its subdecks), not globally, so this
+    /// must run before every `queuedCards` fetch.
+    func setCurrentDeck(_ deckID: DeckID) async throws
     func queuedCards(limit: Int) async throws -> QueuedCardsResult
     func render(cardID: CardID) async throws -> RenderedCard
     /// `states` must be the scheduling states returned with this card by
@@ -112,15 +116,27 @@ public protocol ImportServicing: Sendable {
 
 public protocol SyncServicing: Sendable {
     var isLoggedIn: Bool { get }
+    /// AnkiWeb account name when logged in, `nil` otherwise.
+    var loggedInUsername: String? { get }
     func logIn(username: String, password: String) async throws
     func sync() async throws
+    /// Forced full upload/download. Shown after the conflict prompt when the
+    /// server requires a full sync and neither direction can be chosen by
+    /// the engine alone (`fullSyncRequired` / `fullUploadRequired`).
+    func fullSync(direction: SyncDirection) async throws
+    /// Media-sync progress. `active` is false when nothing is running.
+    func mediaSyncStatus() async throws -> MediaSyncStatus
+    /// Best-effort cancel of a running sync (collection + media). Safe to
+    /// call when nothing runs.
+    func cancel() async
 }
 
 public enum LiteError: Error, Sendable, Equatable {
     case collectionNotOpen
     case unsupportedPackage
     case notLoggedIn
-    /// `sync` and `import` land in Phase 3; the placeholder services throw this.
+    /// A feature the engine cannot serve in this build (kept for the review
+    /// screen's error mapping).
     case notImplemented
     case engine(String)
 }

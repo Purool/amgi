@@ -39,7 +39,7 @@ public struct LiteServices: Sendable {
             review: LiveReviewService(backend: backend, state: state),
             browse: LiveBrowseService(backend: backend, state: state),
             importExport: LiveImportService(backend: backend, state: state),
-            sync: UnavailableSyncService()
+            sync: LiveSyncService(backend: backend, state: state)
         )
     }
 }

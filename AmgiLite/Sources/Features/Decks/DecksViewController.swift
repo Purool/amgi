@@ -20,7 +20,7 @@ final class DecksViewController: UIViewController {
     private let emptyView = EmptyStateView(
         symbol: "rectangle.stack",
         title: "No decks",
-        message: "The collection is open but has nothing to study yet. Import a deck once the setup flow lands (Phase 3)."
+        message: "This collection has nothing to study yet. Import an .apkg from Settings, or sync from AnkiWeb."
     )
     private var errorView: ErrorStateView?
     private let refreshControl = UIRefreshControl()
