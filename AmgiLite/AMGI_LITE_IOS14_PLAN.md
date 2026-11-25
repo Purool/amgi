@@ -18,14 +18,17 @@ UI 全部用 UIKit 在 iOS 14 方言下重写。
 | Phase 1 | 服务层、设计系统、`CardWebView`、shell | 已落地 |
 | Phase 2 | Decks / Review / Browse | 已落地 |
 | Phase 3 | Onboarding / Settings（AnkiWeb 登录、同步、`.apkg` 导入）/ 收尾 | 已落地 |
-| **Phase 4** | **卡片模板编辑、卡片文字编辑、牌组选项、FSRS 优化** | **已规划，未开工**（`AMGI_LITE_PHASE4_PLAN.md`） |
+| **Phase 4** | **卡片模板编辑、卡片文字编辑、牌组选项、FSRS 优化** | **P0 已落地**；P1 见 §5.2 与 `AMGI_LITE_PHASE4_PLAN.md` |
 | Phase 5 | 测试补齐、真机回归、AppIcon、TestFlight | 未开始 |
 
-当前代码：`Features/Decks`（diffable 卡组列表 + 计数徽章）、`Features/Review`（Q/A 切换、
-四键评分、撤销、结束态）、`Features/Browse`（搜索 + 只读笔记列表/详情）、
-`Features/Settings`（AnkiWeb 登录/同步、`.apkg` 导入、关于）、`Features/Onboarding`
-（创建 collection / 导入 / 登录，可跳过）。测试 13 个用例
-（引擎冒烟 1 + 服务 7 + 同步 5）。
+当前代码：`Features/Decks`（diffable 卡组列表 + 计数徽章 + Deck Options 长按菜单）、
+`Features/Review`（Q/A 切换、四键评分、撤销、结束态）、`Features/Browse`（搜索 +
+笔记列表/详情 + 模态编辑）、`Features/Settings`（AnkiWeb 登录/同步、`.apkg` 导入、
+Note Types、关于）、`Features/Onboarding`（创建 collection / 导入 / 登录，可跳过）、
+`Features/DeckOptions`（预设、限制、顺序、高级、FSRS 与权重屏）、
+`Features/Templates`（笔记类型列表、模板编辑器、预览、校验）、
+`Features/NoteEditor`（字段/标签、删除、未保存预览）。测试 56 个用例
+（引擎冒烟 1 + 服务 7 + 同步 5 + Phase 4 引擎级 14 + 纯逻辑 29）。
 
 验收命令只有一个：
 
@@ -203,7 +206,7 @@ AmgiLite/
 | 2.5 集成 | S9 `integration-2` | 三页接进 `Router` |
 | 3 收尾 | S10 `onboarding` / S11 `settings-sync` / S12 `polish` | 首次启动三选一；AnkiWeb 登录/同步/`fullSync`/媒体进度；导入；深色/动态字体/VoiceOver |
 
-### 5.2 Phase 4 —— 卡片与模板编辑、牌组选项、FSRS（规划，未开工）
+### 5.2 Phase 4 —— 卡片与模板编辑、牌组选项、FSRS（P0 已落地）
 
 | ID | 内容 | 依赖 | 人日 |
 |---|---|---|---|
@@ -218,6 +221,11 @@ AmgiLite/
 引擎侧**不需要任何改动**——所需的 13 个 RPC 在 `Engine/AnkiProtoBridge` 里都已有 `public`
 工厂。字段/模板/笔记/牌组选项的语义陷阱、契约、界面与测试细节见
 **`AMGI_LITE_PHASE4_PLAN.md`**（本阶段的唯一实施依据）。
+
+**as-built（2026-11）**：M4.0a–M4.4 的 P0 全部落地，M4.0b 的调试画廊与
+M4.1/4.2/4.3 的 P1 项（字段管理、新建笔记、新建/复制笔记类型、复习屏菜单）没有做。
+`./scripts/verify.sh --test` 在 iPhone 17 模拟器上 56/56 通过；部署目标仍是 14.0。
+实施偏差见 `AMGI_LITE_PHASE4_PLAN.md` §10。
 
 ### 5.3 Phase 5 —— 交付（串行，~1 周）
 
@@ -286,7 +294,7 @@ shard run  -p "$(cat prompts/phase4.txt)" --agents 2 --max-cost 30
 | Phase 1 + 1.5 | 2 周 | 1.5 周 |
 | Phase 2 + 2.5 | 2.5 周 | 2 周 |
 | Phase 3 | 2 周 | 1.5 周 |
-| Phase 4 | 6 周（29 人日） | ~4 周（含 buffer 4.5 周） |
+| Phase 4 | P0 已落地（P1 顺延） | — |
 | Phase 5 | 1 周 | 1 周 |
 | **合计** | **~14.5 周** | **~11 周（含 buffer 12 周）** |
 
@@ -306,6 +314,7 @@ Phase 4 是三个相对独立的屏幕，是继 Phase 2 之后第二个真正的
 | `CardAssetScheme` 的 media/assets/card 三 host | 实际 `media` + `assets`（MathJax）两个 host；`card` 只作 base URL（返回 204） |
 | Phase 1 之后 Docs 里写"计划在 `Documentation/`" | 计划与文档全部收进 `AmgiLite/`（本文件、Phase 4 文档、AGENTS、README） |
 | Phase 4 = 交付 | Phase 4 = 功能（本文件 §5.2），交付顺延为 Phase 5 |
+| Phase 4 的 P1 与本轮一起做 | 先交付 P0；P1 无 UI 入口，引擎能力已由测试覆盖 |
 
 ## 10. 文档索引
 

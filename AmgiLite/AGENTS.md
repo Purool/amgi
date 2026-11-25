@@ -22,16 +22,22 @@ iOS 14 / UIKit 独立版：**卡组 → 复习 → 浏览**，加上 **卡片模
 | Phase 1 | 服务层、设计系统、`CardWebView`、shell | 完成 |
 | Phase 2 | Decks / Review / Browse | 完成 |
 | Phase 3 | Onboarding / Settings（AnkiWeb 登录、同步、`.apkg` 导入）/ 收尾 | 完成 |
-| Phase 4 | 卡片模板、卡片文字、牌组选项、FSRS 优化 | **已规划，未开工**：`AMGI_LITE_PHASE4_PLAN.md` |
+| Phase 4 | 卡片模板、卡片文字、牌组选项、FSRS 优化 | **P0 已落地**（P1 字段管理/新建笔记未做）：`AMGI_LITE_PHASE4_PLAN.md` |
 | Phase 5 | 测试补齐、真机回归、AppIcon、TestFlight | 未开始 |
 
-当前代码：`Features/Decks`（diffable 卡组列表 + 计数徽章）、`Features/Review`
-（Q/A 切换、四键评分、撤销、结束态）、`Features/Browse`（搜索 + **只读**笔记列表/详情）、
-`Features/Settings`（AnkiWeb 登录/同步、`.apkg` 导入、关于）、`Features/Onboarding`
-（创建 collection / 导入 / 登录，可跳过）。同步在
+当前代码：`Features/Decks`（diffable 卡组列表 + 计数徽章 + 长按 Deck Options）、
+`Features/Review`（Q/A 切换、四键评分、撤销、结束态）、`Features/Browse`（搜索 +
+笔记列表/详情 + 模态编辑入口）、`Features/Settings`（AnkiWeb 登录/同步、`.apkg` 导入、
+Note Types 入口、关于）、`Features/Onboarding`（创建 collection / 导入 / 登录，可跳过）、
+`Features/DeckOptions`（预设 CRUD、每日上限/新卡/遗忘/埋藏/顺序/高级、FSRS 段与权重屏）、
+`Features/Templates`（笔记类型列表、模板编辑器、预览、校验）、
+`Features/NoteEditor`（字段/标签编辑、删除、未保存预览）。同步在
 `Sources/Services/LiveSyncService.swift`（Keychain 存凭据，`SyncServicing` 为此新增
-`fullSync` / `mediaSyncStatus` / `cancel` 等成员）。测试 13 个用例
-（引擎冒烟 1 + 服务 7 + 同步 5）。
+`fullSync` / `mediaSyncStatus` / `cancel` 等成员）。测试 56 个用例
+（引擎冒烟 1 + 服务 7 + 同步 5 + Phase 4 引擎级 14 + 纯逻辑 29）。
+
+Phase 4 的 P1（字段管理、新建笔记、新建/复制笔记类型、复习屏菜单）没有做：
+界面未暴露入口，引擎侧也已验证可支撑，按 `AMGI_LITE_PHASE4_PLAN.md` §10 排到下一轮。
 
 ## 目录
 
@@ -47,9 +53,9 @@ iOS 14 / UIKit 独立版：**卡组 → 复习 → 浏览**，加上 **卡片模
 | `Sources/Services/` | `Contracts.swift`（协议）+ `Live*Service` + `CollectionSession` |
 | `Sources/Support/` | `CardWebView`、scheme handler、alert、进度卡、错误文案 |
 | `Sources/Features/` | 每个 screen 一个子目录 |
-| `Sources/Features/DeckOptions/` | 牌组选项 + 预设 + FSRS 权重（Phase 4 规划，尚未创建） |
-| `Sources/Features/Templates/` | 笔记类型列表 + 模板编辑器 + 预览（Phase 4 规划，尚未创建） |
-| `Sources/Features/NoteEditor/` | 笔记字段/标签编辑 + 新建笔记（Phase 4 规划，尚未创建） |
+| `Sources/Features/DeckOptions/` | 牌组选项 + 预设 + FSRS 权重 |
+| `Sources/Features/Templates/` | 笔记类型列表 + 模板编辑器 + 预览 |
+| `Sources/Features/NoteEditor/` | 笔记字段/标签编辑 + 删除 + 未保存预览 |
 | `Tests/AmgiLiteTests/` | 真引擎单测，见 `Tests/AGENTS.md` |
 | `scripts/verify.sh` | 唯一验收命令 |
 | `scripts/build-engine.sh` | 重编 `Frameworks/`（仅 monorepo 内可执行） |
@@ -147,6 +153,8 @@ cd AmgiLite
 - **牌组选项的值域越界会被静默重置**（不是报错）：每日上限 0–9999、最大间隔
   1–36500、期望保留率 0.70–0.99 等。控件要在范围内夹取。
 - **`limits` 必须原样回传**：`updateDeckConfigs` 传空会清掉卡组级每日上限。
+- **笔记编辑器是模态**：有未保存改动时 `isModalInPresentation = true`，
+  防止下滑手势绕过「Discard / Cancel」直接丢改动。
 - **模板预览用的是已保存的 notetype**：CSS 由客户端替换；新增字段要保存后才预览得到。
 - **笔记字段数必须等于 notetype 字段数**：少一个 `updateNote` 就报错。
 - **全空笔记能存进去但不生成卡**：保存前必须校验首字段非空。

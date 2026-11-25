@@ -1,7 +1,8 @@
 # Amgi Lite Phase 4 —— 卡片模板编辑、卡片文字编辑、牌组选项、FSRS 参数优化
 
-> 状态：**规划（未开工）**。基线：Phase 0–3 已落地，
-> `cd AmgiLite && ./scripts/verify.sh --test` 是唯一验收命令。
+> 状态：**P0 已落地（2026-11）**。基线：Phase 0–3 已落地，
+> `cd AmgiLite && ./scripts/verify.sh --test` 是唯一验收命令；本轮在 iPhone 17
+> 模拟器上 56/56 通过，部署目标仍是 14.0。P1 项见 §10。
 >
 > 本文件在 `AmgiLite/` 内，属于自包含目录的一部分。**上层目录只读**：
 > `../Sources`、`../anki-bridge-rs`、`../anki-upstream` 只作为输入，不要修改，
@@ -747,3 +748,38 @@ shard 约束（写进 prompt，与现有约定一致）：
    还是想要所见即所得（另起一轮，成本 ~1.5 周）？
 3. **交付节奏**：一次性发（4 周）还是拆两次——先「牌组选项 + FSRS + 笔记编辑」
    （约 2.5 周，感知强、风险低），再「模板编辑器 + 字段管理」。
+
+
+## 10. 落地记录（as-built）
+
+`M4.0a–M4.4` 的 P0 范围全部落地，没有改 `Engine/`、`Frameworks/` 或上层目录。
+
+| Shard | 落地内容 |
+|---|---|
+| M4.0a | `DeckOptionsServicing` / `NotetypeServicing` / `NoteEditingServicing` 三个协议 + `LiveDeckOptionsService` / `LiveNotetypeService` / `LiveNoteEditingService` + `LiteServices` 装配 + `DeckRow.isFiltered`（`LiveDeckService.flatten` 透出） |
+| M4.0b | `AmgiFormCells.swift`（switch/stepper/text/menu/disclosure/slider/action/info + section header）、`AmgiTypography.mono`、`KeyboardAvoiding.swift`。**没有做**调试画廊 |
+| M4.1 | `Features/DeckOptions/`：`DeckOptionsDraft`（解析 + 权重写回规则）、`DeckOptionsRow`、`DeckOptionsViewModel`、`DeckOptionsViewController`、`PresetPickerViewController`、`FsrsWeightsViewController` |
+| M4.2 | `Features/Templates/`：`TemplateValidation`、`NotetypeDraft`、`NotetypeListViewController`、`TemplateEditorViewModel`、`TemplateSourceEditor`、`TemplateEditorViewController`；预览屏抽到 `Support/CardPreviewViewController` 供模板/笔记共用 |
+| M4.3 | `Features/NoteEditor/`：`NoteDraft`、`NoteEditorViewModel`、`NoteFieldView`、`NoteEditorViewController`（字段/标签、删除确认带卡片数、未保存预览、`isModalInPresentation` 拦截下滑丢改动） |
+| M4.4 | `Router` 三个新 route、`Composition` 接线、Decks 长按「Deck Options」（filtered 不给）、Settings「Note Types」、NoteDetail「Edit」、Browse 上下文菜单「Edit Note」。复习屏菜单仍是 P1 |
+
+### 10.1 与计划不同的地方
+
+| 计划 | 实际 | 原因 |
+|---|---|---|
+| M4.0b 调试画廊 | 未做 | 用户要求「编译过 + iPhone 17 模拟器验证」；表单件已在三个真实屏幕里跑过 |
+| 表单行用 `accessories = [.customView]` | stepper/text/menu 改成 `contentView` 内的横向栈 | iOS 14 的 custom accessory 在窄屏上会超出 cell 右边界（stepper 的 `+` 点不到、菜单标题被截断），复测后改成内容区布局 |
+| 模板/笔记预览两个屏 | 共用 `CardPreviewViewController` | 除标题和提示文案外完全一致，避免两份 WebView 生命周期代码 |
+| P1：字段管理、新建笔记、新建/复制笔记类型、复习屏菜单 | 未做 | 与总计划的「默认不进本轮」一致；引擎能力已由 §6.2 测试覆盖，下一轮只加 UI |
+| 真机回归（§6.3） | 未做 | 本轮验收按用户指定改用 iPhone 17 模拟器；iOS 14 运行时仍需 iPhone 6s/7 |
+
+### 10.2 验证
+
+```bash
+cd AmgiLite
+./scripts/verify.sh --test   # build（14.0）+ 56 tests，iPhone 17
+```
+
+模拟器手工走查：Decks 长按 → Deck Options（改 New cards/day → Save → 重进确认）；
+Settings → Note Types → Basic（Front/Back/Styles、Preview）；Browse → 笔记详情 → Edit
+（字段 HTML、标签、Preview、未保存 Discard 拦截）。P1 没有入口，因此没有对应走查项。

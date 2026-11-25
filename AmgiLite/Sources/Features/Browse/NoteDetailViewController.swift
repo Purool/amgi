@@ -13,7 +13,10 @@ final class NoteDetailViewController: UIViewController {
     }
 
     private let services: LiteServices
+    private let session: CollectionSession
     private let noteID: NoteID
+    private let router: Router
+    private var hasLoadedOnce = false
 
     private let scrollView = UIScrollView()
     private let stack = UIStackView()
@@ -24,9 +27,11 @@ final class NoteDetailViewController: UIViewController {
         didSet { render(phase) }
     }
 
-    init(services: LiteServices, noteID: NoteID) {
+    init(services: LiteServices, session: CollectionSession, noteID: NoteID, router: Router) {
         self.services = services
+        self.session = session
         self.noteID = noteID
+        self.router = router
         super.init(nibName: nil, bundle: nil)
         title = "Note"
     }
@@ -42,8 +47,43 @@ final class NoteDetailViewController: UIViewController {
 
         setUpScrollView()
         setUpLoadingView()
+        setUpEditItem()
 
         fetch()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Returning from the modal editor: re-read without a loading flash.
+        if hasLoadedOnce {
+            fetch()
+        }
+    }
+
+    private func setUpEditItem() {
+        let edit = UIBarButtonItem(
+            title: "Edit",
+            style: .plain,
+            target: self,
+            action: #selector(editTapped)
+        )
+        edit.accessibilityLabel = "Edit note"
+        navigationItem.rightBarButtonItem = edit
+    }
+
+    @objc private func editTapped() {
+        let editor = NoteEditorViewController(
+            services: services,
+            session: session,
+            noteID: noteID
+        )
+        // Saving dismisses; `viewWillAppear` re-reads. Deleting must also
+        // leave this screen, since its note no longer exists.
+        editor.onDeleted = { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }
+        let navigation = UINavigationController(rootViewController: editor)
+        present(navigation, animated: true)
     }
 
     // MARK: Setup
@@ -87,7 +127,10 @@ final class NoteDetailViewController: UIViewController {
     // MARK: Fetch
 
     private func fetch() {
-        phase = .loading
+        if !hasLoadedOnce {
+            phase = .loading
+        }
+        hasLoadedOnce = true
         let noteID = self.noteID
         Task { [weak self] in
             guard let self else { return }

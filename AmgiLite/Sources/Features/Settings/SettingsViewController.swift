@@ -18,11 +18,13 @@ final class SettingsViewController: UIViewController {
         case signIn
         case syncNow
         case importPackage
+        case noteTypes
         case version(text: String)
         case about
     }
 
     private let viewModel: SettingsViewModel
+    private let router: Router
 
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Item>!
@@ -32,8 +34,9 @@ final class SettingsViewController: UIViewController {
     /// the completion still reports the outcome when it returns.
     private var importCancelled = false
 
-    init(viewModel: SettingsViewModel) {
+    init(viewModel: SettingsViewModel, router: Router) {
         self.viewModel = viewModel
+        self.router = router
         super.init(nibName: nil, bundle: nil)
         title = "Settings"
     }
@@ -115,6 +118,10 @@ final class SettingsViewController: UIViewController {
         case .importPackage:
             content.image = UIImage(systemName: "square.and.arrow.down")
             content.text = "Import .apkg file"
+        case .noteTypes:
+            content.image = UIImage(systemName: "square.stack.3d.up")
+            content.text = "Note Types"
+            content.secondaryText = "Edit cards and templates"
         case .version(let text):
             content.image = UIImage(systemName: "info.circle")
             content.text = "Version"
@@ -164,7 +171,7 @@ final class SettingsViewController: UIViewController {
             ],
             toSection: .account
         )
-        snapshot.appendItems([.importPackage], toSection: .collection)
+        snapshot.appendItems([.importPackage, .noteTypes], toSection: .collection)
         snapshot.appendItems(
             [
                 .version(text: versionText()),
@@ -322,6 +329,8 @@ extension SettingsViewController: UICollectionViewDelegate {
             viewModel.sync()
         case .importPackage:
             pickPackage()
+        case .noteTypes:
+            router.push(.notetypeList, from: self)
         case .accountStatus, .version, .about:
             break
         }

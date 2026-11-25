@@ -27,7 +27,27 @@ enum Composition {
             ReviewViewController(services: services, session: session, deckID: deckID)
         }
         router.makeBrowseNote = { noteID in
-            NoteDetailViewController(services: services, noteID: noteID)
+            NoteDetailViewController(services: services, session: session, noteID: noteID, router: router)
+        }
+        router.makeDeckOptions = { deckID, deckName in
+            DeckOptionsViewController(
+                services: services,
+                session: session,
+                deckID: deckID,
+                deckName: deckName
+            )
+        }
+        router.makeNotetypeList = {
+            NotetypeListViewController(services: services, session: session, router: router)
+        }
+        router.makeTemplateEditor = { notetypeID, initialTemplate, previewNoteID in
+            TemplateEditorViewController(
+                services: services,
+                session: session,
+                notetypeID: notetypeID,
+                initialTemplate: initialTemplate,
+                previewNoteID: previewNoteID
+            )
         }
 
         return ScreenFactories(
@@ -40,12 +60,15 @@ enum Composition {
             makeBrowse: {
                 BrowseViewController(
                     viewModel: BrowseViewModel(services: services, session: session),
-                    router: router
+                    router: router,
+                    services: services,
+                    session: session
                 )
             },
             makeSettings: {
                 SettingsViewController(
-                    viewModel: SettingsViewModel(services: services, session: session)
+                    viewModel: SettingsViewModel(services: services, session: session),
+                    router: router
                 )
             }
         )

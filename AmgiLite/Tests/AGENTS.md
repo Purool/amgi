@@ -45,6 +45,16 @@ target 能编过的前提。
 - 沙箱环境里测试会因为伪终端分配失败报 `Pseudo Terminal Setup Error`，与代码无关；
   在普通终端或 CI 里正常。
 
+## Phase 4 的引擎级用例
+
+- `Phase4ServiceTests.swift` —— 真引擎覆盖 notetype（改名/模板 round-trip、非法模板、
+  新增字段 ord）、deck options（context 形状、保存上限与步骤、`limits` 保真、预设
+  新建/删除、默认预设拒删、无历史优化返回 0）、notes（新增/编辑 round-trip、字段数
+  不足抛错、删除后搜不到）。`TestCollection.swift` 提供每个用例独立临时库。
+- 纯逻辑不碰引擎：`DeckOptionsDraftTests`（步骤/权重解析、apply 只改暴露字段、
+  权重写回规则、保留率 override、预设名去重）、`TemplateValidationTests`
+  （校验 + structural change）、`NoteDraftTests`（字段对齐、标签规整、sfld/csum 不动）。
+
 ## 命名
 
 `<被测对象>Tests.swift`，用例名写清前置条件与期望，例如

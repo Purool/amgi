@@ -11,6 +11,8 @@ final class BrowseViewController: UIViewController {
 
     private let viewModel: BrowseViewModel
     private let router: Router
+    private let services: LiteServices
+    private let session: CollectionSession
 
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, NoteID>!
@@ -20,10 +22,18 @@ final class BrowseViewController: UIViewController {
     private var emptyView: EmptyStateView?
     private var errorView: ErrorStateView?
     private let refreshControl = UIRefreshControl()
+    private var hasLoadedOnce = false
 
-    init(viewModel: BrowseViewModel, router: Router) {
+    init(
+        viewModel: BrowseViewModel,
+        router: Router,
+        services: LiteServices,
+        session: CollectionSession
+    ) {
         self.viewModel = viewModel
         self.router = router
+        self.services = services
+        self.session = session
         super.init(nibName: nil, bundle: nil)
         title = "Browse"
     }
@@ -46,6 +56,16 @@ final class BrowseViewController: UIViewController {
         }
         // First screen: the first page of all notes.
         viewModel.search(query: "", showLoadingOverlay: true)
+        hasLoadedOnce = true
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // A note edited or deleted from the detail screen must not leave a
+        // stale row behind; re-run the current search without a loading flash.
+        if hasLoadedOnce {
+            viewModel.search(query: viewModel.query, showLoadingOverlay: false)
+        }
     }
 
     // MARK: Setup
@@ -213,6 +233,40 @@ extension BrowseViewController: UICollectionViewDelegate {
         collectionView.deselectItem(at: indexPath, animated: true)
         guard let noteID = dataSource.itemIdentifier(for: indexPath) else { return }
         router.push(.browseNote(noteID: noteID), from: self)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let noteID = dataSource.itemIdentifier(for: indexPath) else { return nil }
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {
+            [weak self] _ in
+            guard let self else { return nil }
+            return UIMenu(children: [
+                UIAction(
+                    title: "Edit Note",
+                    image: UIImage(systemName: "square.and.pencil")
+                ) { _ in
+                    self.presentEditor(noteID: noteID)
+                },
+            ])
+        }
+    }
+
+    private func presentEditor(noteID: NoteID) {
+        let editor = NoteEditorViewController(
+            services: services,
+            session: session,
+            noteID: noteID
+        )
+        // A deleted note is gone from this list; re-run the current search.
+        editor.onDeleted = { [weak self] in
+            guard let self else { return }
+            self.viewModel.search(query: self.viewModel.query, showLoadingOverlay: false)
+        }
+        present(UINavigationController(rootViewController: editor), animated: true)
     }
 
     func collectionView(

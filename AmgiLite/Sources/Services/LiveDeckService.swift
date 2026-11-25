@@ -36,7 +36,8 @@ struct LiveDeckService: DeckServicing {
                 name: node.name,
                 fullName: node.fullName,
                 counts: node.counts,
-                depth: depth
+                depth: depth,
+                isFiltered: node.isFiltered
             )] + flatten(node.children, depth: depth + 1)
         }
     }

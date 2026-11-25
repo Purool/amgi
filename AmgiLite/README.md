@@ -1,8 +1,7 @@
 # AmgiLite
 
-The iOS 14 / UIKit build of Amgi: browse cards, review them on schedule, and —
-once Phase 4 lands — edit the cards and templates themselves, tune deck options,
-and optimize FSRS weights.
+The iOS 14 / UIKit build of Amgi: browse and review cards, edit notes and their
+templates, tune deck options, and optimize FSRS weights.
 
 Everything outside this folder belongs to the iOS 18 / SwiftUI app. This folder
 shares no source files with it and can be moved to its own repository: the engine
@@ -23,26 +22,32 @@ docs to `../Documentation`.
 | 1 | services, design system, card web view, shell | done |
 | 2 | Decks / Review / Browse | done |
 | 3 | Onboarding / Settings (AnkiWeb, sync, `.apkg` import) | done |
-| 4 | **card templates, card text, deck options, FSRS optimization** | **planned** — [`AMGI_LITE_PHASE4_PLAN.md`](AMGI_LITE_PHASE4_PLAN.md) |
+| 4 | **card templates, card text, deck options, FSRS optimization** | **P0 done** (P1 field/new-note extras deferred) |
 | 5 | test hardening, device regression, AppIcon, TestFlight | not started |
 
 Available today: deck tree with new/learning/due badges, review with Q/A toggle,
-four ratings, undo and a finished state, browse with search and a read-only note
-detail, first-launch onboarding (create / import / sign in), AnkiWeb sign-in and
-sync with media progress and the full-sync conflict prompt, `.apkg` import, and
-a settings/about screen. 13 unit tests run against the real engine.
+four ratings, undo and a finished state, browse with search and a note detail
+with a modal editor, first-launch onboarding (create / import / sign in),
+AnkiWeb sign-in and sync with media progress and the full-sync conflict prompt,
+`.apkg` import, deck options (presets, limits, ordering, burying, advanced
+multipliers, FSRS), note-type templates with front/back/CSS editing and card
+preview, and a settings/about screen. 56 unit tests run against the real engine
+and cover the Phase 4 RPCs end to end.
 
-## Planned (Phase 4)
+## Phase 4 (P0 landed)
 
 - **Card templates** — note type list, per-template front/back/styling source
-  editing, field insertion, live preview, validation, save. Field management is
-  a P1 item.
+  editing, field insertion, preview with draft CSS, validation, save. Field
+  management is a P1 item.
 - **Card text** — edit a note's fields and tags, delete a note, preview unsaved
   edits. Adding new notes is a P1 item.
 - **Deck options** — preset switch/create/rename/delete, daily limits, new-card
   and lapse steps, burying, ordering, advanced multipliers.
 - **FSRS** — enable FSRS, desired/historical retention, weight editing,
   "optimize weights" for one preset or all presets, health check.
+
+Still deferred (P1): field management, adding notes, creating/copying note
+types, the review-screen menu, and the debug form gallery.
 
 Out of scope: statistics, EPUB/dictionary, widgets/watch/shortcuts, iPad,
 image occlusion, `ChangeNotetype`, FSRS simulator, media insertion in note
@@ -66,7 +71,7 @@ AmgiLite/
     DesignSystem/               colours, type, spacing, shared controls, form rows
     Services/                   Contracts.swift — the only engine boundary screens see
     Support/                    card web view, scheme handler, alerts, progress, error copy
-    Features/Decks|Review|Browse|Onboarding|Settings/
+    Features/Decks|Review|Browse|Onboarding|Settings|DeckOptions|Templates|NoteEditor/
   Tests/AmgiLiteTests/          engine-backed unit tests
   scripts/verify.sh             the one acceptance command
   scripts/build-engine.sh       rebuilds Frameworks/ (monorepo only)
@@ -161,6 +166,9 @@ ignores the xcframework, so it has to be committed with `git add -f`.
 
 Debug helper: `xcrun simctl launch booted com.amgiapp.AmgiLite -AmgiLiteStartAtSettings`
 opens the Settings tab directly (DEBUG builds only).
+
+Deck Options is reached by long-pressing a deck row; filtered decks have no
+preset and deliberately do not offer it.
 
 ## Docs
 

@@ -80,6 +80,23 @@ typecheck 一次。
 - 图标按钮必须给 `accessibilityLabel`；纯装饰的 `UIImageView` 设
   `isAccessibilityElement = false`。
 
+## 表单与编辑器（Phase 4）
+
+- **表单行统一用 `DesignSystem/AmgiFormCells.swift`**：switch / stepper / text /
+  menu / disclosure / slider / action / info。不要在屏幕里再拼一套标题+控件的行。
+- **宽度敏感的控件放 `contentView`，不要放 custom accessory**：iOS 14 的
+  `UICellAccessory.customView` 在窄屏上会把 stepper / 菜单按钮排到 cell 右边界之外，
+  `+` 点不到、长标题被截断。`AmgiStepperRowCell` / `AmgiTextRowCell` /
+  `AmgiMenuRowCell` 都是内容区横向栈，照这个写。
+- **源码编辑器（模板、CSS、权重、字段）关掉智能标点与自动更正**。HTML/CSS 里的引号
+  被替换是真事故；字段编辑器顶部要说明「按存储原样保存 HTML」。
+- **预览统一用 `Support/CardPreviewViewController`**，调用方先渲染好 `RenderedCard`。
+  模板预览必须用 draft CSS 覆盖引擎返回的 `cardCSS`（E4）；新增字段要保存后才可见。
+- **笔记编辑器是模态**：有未保存改动时设置 `navigationController?.isModalInPresentation
+  = true`，否则下滑手势会绕过 Discard 确认。
+- **模板/笔记的 dirty 拦截**复用同一套「Discard / Cancel」alert；不要在 `viewWillDisappear`
+  里静默丢弃。
+
 ## 卡片渲染
 
 `Support/CardViewHosting` 是 Phase 0 留下的接缝：审查页只依赖这个协议。

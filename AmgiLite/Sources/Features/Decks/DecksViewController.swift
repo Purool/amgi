@@ -192,4 +192,34 @@ extension DecksViewController: UICollectionViewDelegate {
         guard let deckID = viewModel.selectDeck(id) else { return }
         router.push(.review(deckID: deckID), from: self)
     }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard
+            let id = dataSource.itemIdentifier(for: indexPath),
+            let row = viewModel.row(for: id),
+            // A filtered deck has no preset: getDeckConfigsForUpdate rejects
+            // it, so the entry point is hidden rather than failing later.
+            !row.isFiltered
+        else { return nil }
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {
+            [weak self] _ in
+            guard let self else { return nil }
+            return UIMenu(children: [
+                UIAction(
+                    title: "Deck Options",
+                    image: UIImage(systemName: "slider.horizontal.3")
+                ) { _ in
+                    self.router.push(
+                        .deckOptions(deckID: row.id, deckName: row.name),
+                        from: self
+                    )
+                },
+            ])
+        }
+    }
 }

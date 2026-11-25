@@ -12,6 +12,9 @@ public struct LiteServices: Sendable {
     public let browse: any BrowseServicing
     public let importExport: any ImportServicing
     public let sync: any SyncServicing
+    public let deckOptions: any DeckOptionsServicing
+    public let notetypes: any NotetypeServicing
+    public let noteEditing: any NoteEditingServicing
 
     public init(
         collection: any CollectionServicing,
@@ -19,7 +22,10 @@ public struct LiteServices: Sendable {
         review: any ReviewServicing,
         browse: any BrowseServicing,
         importExport: any ImportServicing,
-        sync: any SyncServicing
+        sync: any SyncServicing,
+        deckOptions: any DeckOptionsServicing,
+        notetypes: any NotetypeServicing,
+        noteEditing: any NoteEditingServicing
     ) {
         self.collection = collection
         self.decks = decks
@@ -27,6 +33,9 @@ public struct LiteServices: Sendable {
         self.browse = browse
         self.importExport = importExport
         self.sync = sync
+        self.deckOptions = deckOptions
+        self.notetypes = notetypes
+        self.noteEditing = noteEditing
     }
 
     /// Live services over one open backend. Created exactly once, by
@@ -39,7 +48,10 @@ public struct LiteServices: Sendable {
             review: LiveReviewService(backend: backend, state: state),
             browse: LiveBrowseService(backend: backend, state: state),
             importExport: LiveImportService(backend: backend, state: state),
-            sync: LiveSyncService(backend: backend, state: state)
+            sync: LiveSyncService(backend: backend, state: state),
+            deckOptions: LiveDeckOptionsService(backend: backend, state: state),
+            notetypes: LiveNotetypeService(backend: backend, state: state),
+            noteEditing: LiveNoteEditingService(backend: backend, state: state)
         )
     }
 }

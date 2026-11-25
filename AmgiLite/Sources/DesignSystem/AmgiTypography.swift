@@ -10,6 +10,14 @@ enum AmgiTypography {
     static var callout: UIFont { scaled(.callout, size: 16) }
     static var caption: UIFont { scaled(.caption1, size: 12) }
 
+    /// Template / CSS / FSRS-weight source text. Monospaced so `<div>` and
+    /// parameter lists line up; scaled like body text.
+    static var mono: UIFont {
+        UIFontMetrics(forTextStyle: .body).scaledFont(
+            for: .monospacedSystemFont(ofSize: 15, weight: .regular)
+        )
+    }
+
     private static func scaled(
         _ style: UIFont.TextStyle,
         size: CGFloat,
